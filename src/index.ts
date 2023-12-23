@@ -1,22 +1,19 @@
-import {
-  Canister,
-  bool,
-  query,
-  AzleText,
-  update,
-  AzleVoid,
-  AzleVec,
-} from "azle";
+import { Canister, query, AzleText, update, AzleVec, Result } from "azle";
 
 let flipHistory: string[] = [];
 
 export default Canister({
-  getFlipHistory: query([], new AzleVec(AzleText), () => {
+  getFlipHistory: query([], AzleVec(AzleText), () => {
     return flipHistory;
   }),
-  flipCoin: update([], AzleText, () => {
-    let result = Math.random() < 0.5 ? "Heads" : "Tails";
-    flipHistory.push(result);
-    return result;
+
+  flipCoin: update([], Result(AzleText, AzleText), () => {
+    try {
+      let result = Math.random() < 0.5 ? "Heads" : "Tails";
+      flipHistory.push(result);
+      return Result.Ok(result);
+    } catch (error) {
+      return Result.Err(`Error flipping coin: ${error}`);
+    }
   }),
 });
